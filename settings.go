@@ -2,24 +2,19 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
-func load_settings() {
-	data, f_err := os.ReadFile("./config.json")
-	if f_err != nil {
-		fmt.Println(f_err)
-	}
-	err := json.Unmarshal(data, &settings)
+func loadSettings() {
+	file, err := os.ReadFile("config.json")
 	if err != nil {
-		panic(fmt.Errorf("Failed to load settings: %v", err))
+		settings = Settings{Recent: []string{}, Settings: map[string]string{}}
+		return
 	}
+	json.Unmarshal(file, &settings)
 }
-func set_settings(settings Settings) {
-	marshal, err := json.Marshal(settings)
-	if err != nil {
-		panic(err)
-	}
-	_ = os.WriteFile("./config.json", marshal, os.ModePerm)
+
+func setSettings(settings Settings) {
+	file, _ := json.MarshalIndent(settings, "", " ")
+	_ = os.WriteFile("config.json", file, 0644)
 }

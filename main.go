@@ -2,17 +2,15 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+	d "github.com/sqweek/dialog"
 	"golang.design/x/clipboard"
-	"io"
 	"os"
 	"strings"
-	"syscall"
 )
 
 type Settings struct {
@@ -23,40 +21,37 @@ type Settings struct {
 var settings Settings
 
 func main() {
-	load_settings()
+	loadSettings()
 	clipboard.Init()
-	var items = settings.Recent
-	var index widget.ListItemID
+
 	a := app.New()
 	w := a.NewWindow("Encrypt UI")
+
 	message := widget.NewLabel("Recent Files")
-
 	list := widget.NewList(
-		func() int {
-			return len(items)
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(items[i])
-		})
-	button := widget.NewButton("Decrypt", func() {
+		func() int { return len(settings.Recent) },
+		func() fyne.CanvasObject { return widget.NewLabel("template") },
+		func(i widget.ListItemID, o fyne.CanvasObject) { o.(*widget.Label).SetText(settings.Recent[i]) },
+	)
 
-		filePath := items[index]
-		encryptedData, err := os.ReadFile(filePath)
+	var selectedFile string
+	list.OnSelected = func(id widget.ListItemID) {
+		selectedFile = settings.Recent[id]
+	}
+
+	decryptButton := widget.NewButton("Decrypt", func() {
+		if selectedFile == "" {
+			dialog.ShowError(errors.New("no file selected"), w)
+			return
+		}
+
+		encryptedData, err := os.ReadFile(selectedFile)
 		if err != nil {
-			if errors.Is(err.(*os.PathError).Err, syscall.ENOENT) {
-				dialog.ShowConfirm("Failed To Find File", "Remove File", func(b bool) {
+			if errors.Is(err, os.ErrNotExist) {
+				dialog.ShowConfirm("File Not Found", "Remove from recent?", func(b bool) {
 					if b {
-						for i, item := range items {
-							if item == items[index] {
-								items = append(items[:i], items[i+1:]...)
-								settings.Recent = items
-								set_settings(settings)
-								list.Refresh()
-							}
-						}
+						removeRecentFile(selectedFile)
+						list.Refresh()
 					}
 				}, w)
 			} else {
@@ -65,75 +60,131 @@ func main() {
 			return
 		}
 
-		create_password_box(w, func(password string, entered bool) {
-			if entered == true {
-				fmt.Println("Entered:")
-				decryptedText, err := DecryptAES([]byte(password), strings.TrimSpace(string(encryptedData)))
-				if err != nil {
-					dialog.ShowError(err, w)
-					return
-				}
-				text := widget.NewMultiLineEntry()
-				copy_button := widget.NewButton("copy", func() {
-					clipboard.Write(clipboard.FmtText, []byte(decryptedText))
-				})
-				text.SetText(decryptedText)
-				text.Disable()
-				items := []*widget.FormItem{
-					widget.NewFormItem("Name", text),
-					widget.NewFormItem("Copy", copy_button),
-				}
-
-				d := dialog.NewForm("Decrypted Content", "Done", "Cancel", items, func(b bool) { /*it forces me to have 2 buttons :/*/ }, w)
-				d.Resize(fyne.NewSize(400, 200))
-				d.Show()
+		createPasswordBox(w, func(password string, ok bool) {
+			if !ok {
+				return
 			}
+			decryptedText, err := DecryptAES([]byte(password), strings.TrimSpace(string(encryptedData)))
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			showDecryptedContent(w, decryptedText)
 		})
-
 	})
-	topContainer := container.NewVBox(button, message)
-	encrypt_button := widget.NewButton("Encrypt", func() {
-		dialog.ShowCustomConfirm("Type Of File", "New File", "Encrypt Existing File", widget.NewLabel("What would you like to encrypt"), func(b bool) {
-			if !b {
 
-				dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
-					if err != nil {
-						panic(err)
-					}
-					if reader == nil {
-						dialog.ShowError(errors.New("No File Chosen"), w)
-					}
-					data, err := io.ReadAll(reader)
-					if err != nil {
-						panic(err)
-					}
-					create_password_box(w, func(password string, entered bool) {
-						if entered == true {
-							encryptedText := EncryptAES([]byte(password), string(data))
-							dialog.ShowFileSave(func(writer fyne.URIWriteCloser, err error) {
-								if err != nil {
-									panic(err)
-								}
-								_, err = writer.Write([]byte(encryptedText))
-								settings.Recent = append([]string{writer.URI().String()}, settings.Recent...)
-								list.Refresh()
-								if err != nil {
-									panic(err)
-								}
-							}, w)
-
-						}
-					})
-
-				}, w)
-
-			}
+	encryptButton := widget.NewButton("Encrypt", func() {
+		nf_button := widget.NewButton("New File", func() {
+			encryptNewFile(w, list)
+		})
+		ef_button := widget.NewButton("Encrypt Existing file", func() {
+			encryptExistingFile(w, list)
+		})
+		formItems := []*widget.FormItem{
+			widget.NewFormItem("", nf_button),
+			widget.NewFormItem("", ef_button),
+		}
+		dialog.ShowForm("Encryption Type", "", "", formItems, func(encryptExisting bool) { /*mandatory function, has no effect since confirmation/dismissal does nothing
+			:/ */
 		}, w)
 	})
-	content := container.NewBorder(topContainer, encrypt_button, nil, nil, list)
-	list.OnSelected = func(id widget.ListItemID) {
-		set_selected(&index, id)
-	}
+	clearHistoryButton := widget.NewButton("Clear History", func() {
+		settings.Recent = []string{}
+		setSettings(settings)
+		list.Refresh()
+	})
+	topContainer := container.NewVBox(decryptButton, message)
+	content := container.NewBorder(topContainer, container.NewVBox(clearHistoryButton, encryptButton), nil, nil, list)
+
 	w.SetContent(content)
 	w.ShowAndRun()
+}
+
+func removeRecentFile(filePath string) {
+	for i, p := range settings.Recent {
+		if p == filePath {
+
+			settings.Recent = append(settings.Recent[:i], settings.Recent[i+1:]...)
+			setSettings(settings)
+			return
+		}
+	}
+}
+
+func encryptExistingFile(w fyne.Window, list *widget.List) {
+	file, err := d.File().Load()
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	data, err := os.ReadFile(file)
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	createPasswordBox(w, func(password string, ok bool) {
+		if !ok {
+			return
+		}
+		encryptedText, err := EncryptAES([]byte(password), string(data))
+		if err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+
+		if err := os.WriteFile(file, []byte(encryptedText), 777); err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+		addRecentFile(file, list)
+	})
+}
+
+func encryptNewFile(w fyne.Window, list *widget.List) {
+	entry := widget.NewMultiLineEntry()
+	dialog.ShowForm("Enter Text", "Encrypt", "Cancel", []*widget.FormItem{widget.NewFormItem("Text", entry)}, func(ok bool) {
+		if !ok {
+			return
+		}
+		createPasswordBox(w, func(password string, ok bool) {
+			if !ok {
+				return
+			}
+			encryptedText, err := EncryptAES([]byte(password), entry.Text)
+			println(encryptedText)
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			saveEncryptedFile(w, list, encryptedText)
+		})
+	}, w)
+}
+
+func saveEncryptedFile(w fyne.Window, list *widget.List, encryptedText string) {
+	file, err := d.File().Save()
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	_, err = os.Create(file)
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	if err := os.WriteFile(file, []byte(encryptedText), 0644); err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+	addRecentFile(file, list)
+}
+
+func addRecentFile(filePath string, list *widget.List) {
+	settings.Recent = append([]string{filePath}, settings.Recent...)
+	setSettings(settings)
+	list.Refresh()
 }

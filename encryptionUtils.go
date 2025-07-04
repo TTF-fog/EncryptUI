@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"io"
-	"strings"
 )
 
 func hashPassword(password string) []byte {
@@ -16,48 +15,51 @@ func hashPassword(password string) []byte {
 	return hash[:]
 }
 
-const BlockSize = 16
-
-func EncryptAES(key []byte, plaintext string) string {
+func EncryptAES(key []byte, plaintext string) (string, error) {
 	key = hashPassword(string(key))
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	padding := aes.BlockSize - len(plaintext)%aes.BlockSize
-	padtext := strings.Repeat(string(byte(padding)), padding)
-	plaintextPadded := []byte(plaintext + padtext)
+	padtext := make([]byte, padding)
+	for i := range padtext {
+		padtext[i] = byte(padding)
+	}
+	plaintextPadded := append([]byte(plaintext), padtext...)
 
 	ciphertext := make([]byte, aes.BlockSize+len(plaintextPadded))
 	iv := ciphertext[:aes.BlockSize]
 
-	_, err = io.ReadFull(rand.Reader, iv)
-	if err != nil {
-		panic(err)
+	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
+		return "", err
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], plaintextPadded)
 
-	return hex.EncodeToString(ciphertext)
+	return hex.EncodeToString(ciphertext), nil
 }
 func DecryptAES(key []byte, hexCipher string) (string, error) {
 	key = hashPassword(string(key))
 	ciphertext, err := hex.DecodeString(hexCipher)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
+	if len(ciphertext) < aes.BlockSize {
+		return "", errors.New("ciphertext too short")
+	}
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
 
 	if len(ciphertext)%aes.BlockSize != 0 {
-		panic("ciphertext is not a multiple of the block size")
+		return "", errors.New("ciphertext is not a multiple of the block size")
 	}
 
 	mode := cipher.NewCBCDecrypter(block, iv)
@@ -65,11 +67,10 @@ func DecryptAES(key []byte, hexCipher string) (string, error) {
 
 	padding := int(ciphertext[len(ciphertext)-1])
 	if padding > aes.BlockSize || padding == 0 {
-		return "", errors.New("incorrect Password")
+		return "", errors.New("incorrect password")
 	}
 	for i := len(ciphertext) - padding; i < len(ciphertext); i++ {
 		if ciphertext[i] != byte(padding) {
-
 			return "", errors.New("incorrect password")
 		}
 	}
