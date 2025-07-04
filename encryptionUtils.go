@@ -6,15 +6,10 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"io"
 	"strings"
 )
-
-type file struct {
-	name     string
-	text     string
-	password string
-}
 
 func hashPassword(password string) []byte {
 	hash := sha256.Sum256([]byte(password))
@@ -46,7 +41,7 @@ func EncryptAES(key []byte, plaintext string) string {
 
 	return hex.EncodeToString(ciphertext)
 }
-func DecryptAES(key []byte, hexCipher string) string {
+func DecryptAES(key []byte, hexCipher string) (string, error) {
 	key = hashPassword(string(key))
 	ciphertext, err := hex.DecodeString(hexCipher)
 	if err != nil {
@@ -70,14 +65,13 @@ func DecryptAES(key []byte, hexCipher string) string {
 
 	padding := int(ciphertext[len(ciphertext)-1])
 	if padding > aes.BlockSize || padding == 0 {
-
-		return "Invalid Password"
+		return "", errors.New("incorrect Password")
 	}
 	for i := len(ciphertext) - padding; i < len(ciphertext); i++ {
 		if ciphertext[i] != byte(padding) {
 
-			return "Incorrect Password"
+			return "", errors.New("incorrect password")
 		}
 	}
-	return string(ciphertext[:len(ciphertext)-padding])
+	return string(ciphertext[:len(ciphertext)-padding]), nil
 }

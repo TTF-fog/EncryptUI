@@ -39,27 +39,41 @@ func main() {
 			o.(*widget.Label).SetText(items[i])
 		})
 	button := widget.NewButton("Decrypt", func() {
-		fmt.Printf("%s", func() []byte {
-			data, err := os.ReadFile(items[index])
-			if err != nil {
-				if errors.Is(err.(*os.PathError).Err, syscall.ENOENT) {
-					dialog.ShowConfirm("Failed To Find File", "Remove File", func(b bool) {
-						if b {
-							for i, item := range items {
-								if item == items[index] {
-									items = append(items[:i], items[i+1:]...)
-									fmt.Println(items)
-									settings.Recent = items
-									set_settings(settings)
-									list.Refresh()
-								}
+
+		filePath := items[index]
+		encryptedData, err := os.ReadFile(filePath)
+		if err != nil {
+			if errors.Is(err.(*os.PathError).Err, syscall.ENOENT) {
+				dialog.ShowConfirm("Failed To Find File", "Remove File", func(b bool) {
+					if b {
+						for i, item := range items {
+							if item == items[index] {
+								items = append(items[:i], items[i+1:]...)
+								settings.Recent = items
+								set_settings(settings)
+								list.Refresh()
 							}
 						}
-					}, w)
-				}
+					}
+				}, w)
+			} else {
+				dialog.ShowError(err, w)
 			}
-			return data
-		}())
+			return
+		}
+
+		create_password_box(w, func(password string, entered bool) {
+			if entered == true {
+				fmt.Println("Entered:")
+				decryptedText, err := DecryptAES([]byte(password), string(encryptedData))
+				if err != nil {
+					dialog.ShowError(err, w)
+					return
+				}
+				dialog.ShowInformation("Decrypted Content", decryptedText, w)
+			}
+		})
+
 	})
 	topContainer := container.NewVBox(button, message)
 
@@ -86,9 +100,4 @@ func set_settings(settings Settings) {
 		panic(err)
 	}
 	_ = os.WriteFile("./config.json", marshal, os.ModePerm)
-}
-
-func set_selected(index *widget.ListItemID, id int) {
-	*index = id
-
 }
