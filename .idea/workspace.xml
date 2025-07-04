@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="e">
+    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="put settings in sepreate file (settings.go)">
+      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -21,6 +22,11 @@
   </component>
   <component name="GOROOT" url="file:///usr/lib/go" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -35,6 +41,9 @@
     &quot;accountId&quot;: &quot;7b87e01c-7d5a-4f62-8477-db5615ca22d6&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -43,27 +52,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.GoLinterPluginOnboarding": "true",
-    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "master",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/home/ishaan",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "/home/ishaan/home/ishaan/GolandProjects/EncryptUI/main.go"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;ibrokegit&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ishaan&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;/home/ishaan/home/ishaan/GolandProjects/EncryptUI/main.go&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -100,7 +109,10 @@
     <MESSAGE value="setup gui" />
     <MESSAGE value="debloat code, setup error handling and reading for recent files, extra utilities for settings and list" />
     <MESSAGE value="e" />
-    <option name="LAST_COMMIT_MESSAGE" value="e" />
+    <MESSAGE value="segment files for better readability, improve error patterns for decrypt AES, add modular password box function, basic decryption" />
+    <MESSAGE value="Clipboard functionality for decryption, better dialog sizing and look" />
+    <MESSAGE value="put settings in sepreate file (settings.go)" />
+    <option name="LAST_COMMIT_MESSAGE" value="put settings in sepreate file (settings.go)" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

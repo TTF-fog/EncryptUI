@@ -9,7 +9,9 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"golang.design/x/clipboard"
+	"io"
 	"os"
+	"strings"
 	"syscall"
 )
 
@@ -66,7 +68,7 @@ func main() {
 		create_password_box(w, func(password string, entered bool) {
 			if entered == true {
 				fmt.Println("Entered:")
-				decryptedText, err := DecryptAES([]byte(password), string(encryptedData))
+				decryptedText, err := DecryptAES([]byte(password), strings.TrimSpace(string(encryptedData)))
 				if err != nil {
 					dialog.ShowError(err, w)
 					return
@@ -90,8 +92,45 @@ func main() {
 
 	})
 	topContainer := container.NewVBox(button, message)
+	encrypt_button := widget.NewButton("Encrypt", func() {
+		dialog.ShowCustomConfirm("Type Of File", "New File", "Encrypt Existing File", widget.NewLabel("What would you like to encrypt"), func(b bool) {
+			if !b {
 
-	content := container.NewBorder(topContainer, nil, nil, nil, list)
+				dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
+					if err != nil {
+						panic(err)
+					}
+					if reader == nil {
+						dialog.ShowError(errors.New("No File Chosen"), w)
+					}
+					data, err := io.ReadAll(reader)
+					if err != nil {
+						panic(err)
+					}
+					create_password_box(w, func(password string, entered bool) {
+						if entered == true {
+							encryptedText := EncryptAES([]byte(password), string(data))
+							dialog.ShowFileSave(func(writer fyne.URIWriteCloser, err error) {
+								if err != nil {
+									panic(err)
+								}
+								_, err = writer.Write([]byte(encryptedText))
+								settings.Recent = append([]string{writer.URI().String()}, settings.Recent...)
+								list.Refresh()
+								if err != nil {
+									panic(err)
+								}
+							}, w)
+
+						}
+					})
+
+				}, w)
+
+			}
+		}, w)
+	})
+	content := container.NewBorder(topContainer, encrypt_button, nil, nil, list)
 	list.OnSelected = func(id widget.ListItemID) {
 		set_selected(&index, id)
 	}
