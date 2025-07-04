@@ -14,10 +14,10 @@ func set_selected(index *widget.ListItemID, id int) {
 func create_password_box(w fyne.Window, callback func(password string, entered bool)) {
 	password := widget.NewPasswordEntry()
 	items := []*widget.FormItem{
-		widget.NewFormItem("Name", password),
+		widget.NewFormItem("Password", password),
 	}
 
-	dialog.ShowForm("Enter Password", "Done", "N", items, func(b bool) {
+	d := dialog.NewForm("Enter Password", "Done", "N", items, func(b bool) {
 		fmt.Println("triggered")
 		if b {
 			callback(password.Text, true)
@@ -27,4 +27,6 @@ func create_password_box(w fyne.Window, callback func(password string, entered b
 			callback(password.Text, false)
 		}
 	}, w)
+	d.Resize(fyne.NewSize(400, 100))
+	d.Show()
 }

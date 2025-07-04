@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+	"golang.design/x/clipboard"
 	"os"
 	"syscall"
 )
@@ -22,6 +23,7 @@ var settings Settings
 
 func main() {
 	load_settings()
+	clipboard.Init()
 	var items = settings.Recent
 	var index widget.ListItemID
 	a := app.New()
@@ -70,7 +72,20 @@ func main() {
 					dialog.ShowError(err, w)
 					return
 				}
-				dialog.ShowInformation("Decrypted Content", decryptedText, w)
+				text := widget.NewMultiLineEntry()
+				copy_button := widget.NewButton("copy", func() {
+					clipboard.Write(clipboard.FmtText, []byte(decryptedText))
+				})
+				text.SetText(decryptedText)
+				text.Disable()
+				items := []*widget.FormItem{
+					widget.NewFormItem("Name", text),
+					widget.NewFormItem("Copy", copy_button),
+				}
+
+				d := dialog.NewForm("Decrypted Content", "Done", "Cancel", items, func(b bool) { /*it forces me to have 2 buttons :/*/ }, w)
+				d.Resize(fyne.NewSize(400, 200))
+				d.Show()
 			}
 		})
 
