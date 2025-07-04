@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="debloat code, setup error handling and reading for recent files, extra utilities for settings and list" />
+    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="debloat code, setup error handling and reading for recent files, extra utilities for settings and list">
+      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
