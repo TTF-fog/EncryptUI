@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="">
-      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" afterDir="false" />
-    </list>
+    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="debloat code, setup error handling and reading for recent files, extra utilities for settings and list" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,18 +21,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "TTF-fog"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;TTF-fog&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/TTF-fog/EncryptUI.git",
-    "accountId": "7b87e01c-7d5a-4f62-8477-db5615ca22d6"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/TTF-fog/EncryptUI.git&quot;,
+    &quot;accountId&quot;: &quot;7b87e01c-7d5a-4f62-8477-db5615ca22d6&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -52,6 +49,7 @@
     "RunOnceActivity.GoLinterPluginStorageMigration": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
@@ -84,6 +82,22 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="setup gui" />
+    <MESSAGE value="debloat code, setup error handling and reading for recent files, extra utilities for settings and list" />
+    <option name="LAST_COMMIT_MESSAGE" value="debloat code, setup error handling and reading for recent files, extra utilities for settings and list" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
