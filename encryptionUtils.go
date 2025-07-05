@@ -1,21 +1,28 @@
 package main
 
 import (
+	"bytes"
+	compress "compress/gzip"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	_ "embed"
 	"encoding/hex"
 	"errors"
 	"io"
+	"os"
 )
+
+//go:embed standalone/standalone.go
+var standalone string
 
 func hashPassword(password string) []byte {
 	hash := sha256.Sum256([]byte(password))
 	return hash[:]
 }
 
-func EncryptAES(key []byte, plaintext string) (string, error) {
+func EncryptAES(key []byte, plaintext []byte) (string, error) {
 	key = hashPassword(string(key))
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -26,7 +33,7 @@ func EncryptAES(key []byte, plaintext string) (string, error) {
 	for i := range padtext {
 		padtext[i] = byte(padding)
 	}
-	plaintextPadded := append([]byte(plaintext), padtext...)
+	plaintextPadded := append(plaintext, padtext...)
 
 	ciphertext := make([]byte, aes.BlockSize+len(plaintextPadded))
 	iv := ciphertext[:aes.BlockSize]
@@ -40,6 +47,7 @@ func EncryptAES(key []byte, plaintext string) (string, error) {
 
 	return hex.EncodeToString(ciphertext), nil
 }
+
 func DecryptAES(key []byte, hexCipher string) (string, error) {
 	key = hashPassword(string(key))
 	ciphertext, err := hex.DecodeString(hexCipher)
@@ -75,4 +83,15 @@ func DecryptAES(key []byte, hexCipher string) (string, error) {
 		}
 	}
 	return string(ciphertext[:len(ciphertext)-padding]), nil
+}
+
+func makeNewStandalone(s string, executeMode bool) {
+	var b bytes.Buffer
+	w := compress.NewWriter(&b)
+	w.Write([]byte(s))
+	w.Close()
+	compressed := b.Bytes()
+	encrypted, _ := EncryptAES([]byte("hello"), compressed)
+	os.WriteFile("standalone/encrypt.txt", []byte(encrypted), 777)
+	os.WriteFile("standalone/standalone.go", []byte(standalone), 777)
 }
