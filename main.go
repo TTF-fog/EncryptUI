@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -10,6 +11,7 @@ import (
 	d "github.com/sqweek/dialog"
 	"golang.design/x/clipboard"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -36,12 +38,13 @@ func main() {
 			o.(*widget.Label).SetText(getFileName(settings.Recent[i]))
 		},
 	)
+	searchEntry := widget.NewEntry()
+	searchEntry.SetPlaceHolder("Search History")
 
 	var selectedFile string
 
 	decryptButton := widget.NewButton("Decrypt", func() {
 		if selectedFile == "" {
-			dialog.ShowError(errors.New("no file selected"), w)
 			return
 		}
 
@@ -78,9 +81,7 @@ func main() {
 		getFileName(settings.Recent[id])
 
 	}
-	if selectedFile == "" {
-		decryptButton.SetText("Decrypt Existing File")
-	}
+
 	encryptButton := widget.NewButton("Encrypt", func() {
 		nf_button := widget.NewButton("New File", func() {
 			encryptNewFile(w, list)
@@ -101,9 +102,32 @@ func main() {
 		setSettings(settings)
 		list.Refresh()
 	})
-	topContainer := container.NewVBox(decryptButton, message)
+	topContainer := container.NewVBox(decryptButton, container.NewBorder(searchEntry, nil, message, nil))
 	content := container.NewBorder(topContainer, container.NewVBox(clearHistoryButton, encryptButton), nil, nil, list)
 
+	origin := settings.Recent
+	searchEntry.OnChanged = func(s string) {
+		var results []string
+		fmt.Println("Search Entry:", s)
+		if s == "" {
+			settings.Recent = origin
+			list.Refresh()
+			return
+		}
+		list.Refresh()
+		for _, item := range origin {
+			match, err := regexp.Match(".*^"+regexp.QuoteMeta(s)+".*", []byte(getFileName(item)))
+			fmt.Println(item, match)
+			if err != nil {
+				dialog.NewError(err, w)
+			}
+			if match {
+				results = append(results, item)
+			}
+		}
+		settings.Recent = results
+		list.Refresh()
+	}
 	w.SetContent(content)
 	w.ShowAndRun()
 }
@@ -213,4 +237,31 @@ func getFileName(filePath string) string {
 		}
 	}
 	return name
+}
+func decryptExistingFile(w fyne.Window, list *widget.List) {
+	file, err := d.File().Load()
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	data, err := os.ReadFile(file)
+	if err != nil {
+		dialog.ShowError(err, w)
+		return
+	}
+
+	createPasswordBox(w, func(password string, ok bool) {
+		if !ok {
+			return
+		}
+		decryptedText, err := DecryptAES([]byte(password), string(data))
+		if err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+		showDecryptedContent(w, decryptedText)
+
+		addRecentFile(file, list)
+	}, false)
 }
