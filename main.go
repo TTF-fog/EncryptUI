@@ -27,17 +27,17 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("Encrypt UI")
 
-	message := widget.NewLabel("Recent Files")
+	message := container.NewCenter(widget.NewLabel("Recent Files"))
+
 	list := widget.NewList(
 		func() int { return len(settings.Recent) },
 		func() fyne.CanvasObject { return widget.NewLabel("template") },
-		func(i widget.ListItemID, o fyne.CanvasObject) { o.(*widget.Label).SetText(settings.Recent[i]) },
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Label).SetText(getFileName(settings.Recent[i]))
+		},
 	)
 
 	var selectedFile string
-	list.OnSelected = func(id widget.ListItemID) {
-		selectedFile = settings.Recent[id]
-	}
 
 	decryptButton := widget.NewButton("Decrypt", func() {
 		if selectedFile == "" {
@@ -70,9 +70,17 @@ func main() {
 				return
 			}
 			showDecryptedContent(w, decryptedText)
-		})
+		}, false)
 	})
+	list.OnSelected = func(id widget.ListItemID) {
+		decryptButton.SetText("Decrypt")
+		selectedFile = settings.Recent[id]
+		getFileName(settings.Recent[id])
 
+	}
+	if selectedFile == "" {
+		decryptButton.SetText("Decrypt Existing File")
+	}
 	encryptButton := widget.NewButton("Encrypt", func() {
 		nf_button := widget.NewButton("New File", func() {
 			encryptNewFile(w, list)
@@ -139,7 +147,15 @@ func encryptExistingFile(w fyne.Window, list *widget.List) {
 			return
 		}
 		addRecentFile(file, list)
-	})
+		dialog.ShowConfirm("Delete Unencrypted files?", "", func(b bool) {
+			if b {
+				err := os.Remove(file)
+				if err != nil {
+					dialog.ShowError(err, w)
+				}
+			}
+		}, w)
+	}, true)
 }
 
 func encryptNewFile(w fyne.Window, list *widget.List) {
@@ -153,13 +169,12 @@ func encryptNewFile(w fyne.Window, list *widget.List) {
 				return
 			}
 			encryptedText, err := EncryptAES([]byte(password), entry.Text)
-			println(encryptedText)
 			if err != nil {
 				dialog.ShowError(err, w)
 				return
 			}
 			saveEncryptedFile(w, list, encryptedText)
-		})
+		}, true)
 	}, w)
 }
 
@@ -187,4 +202,15 @@ func addRecentFile(filePath string, list *widget.List) {
 	settings.Recent = append([]string{filePath}, settings.Recent...)
 	setSettings(settings)
 	list.Refresh()
+}
+
+func getFileName(filePath string) string {
+	var name string
+	for i := len(filePath) - 1; i > 0; i-- {
+		if filePath[i] == '/' {
+			name = filePath[i+1:]
+			break
+		}
+	}
+	return name
 }

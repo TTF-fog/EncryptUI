@@ -2,20 +2,44 @@ package main
 
 import (
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"golang.design/x/clipboard"
+	"golang.org/x/image/colornames"
 )
 
-func createPasswordBox(w fyne.Window, callback func(password string, ok bool)) {
+func createPasswordBox(w fyne.Window, callback func(password string, ok bool), show bool) {
 	passwordEntry := widget.NewPasswordEntry()
-	dialog.ShowForm("Enter Password", "OK", "Cancel", []*widget.FormItem{widget.NewFormItem("Password", passwordEntry)}, func(ok bool) {
-		if !ok {
-			callback("", false)
-			return
+
+	strength := widget.NewLabelWithStyle(analyzePasswordStrength(""), fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+	if show {
+		dialog.ShowForm("Enter Password", "OK", "Cancel", []*widget.FormItem{widget.NewFormItem("Password", passwordEntry), widget.NewFormItem("Strength: ", strength)}, func(ok bool) {
+			if !ok {
+				callback("", false)
+				return
+			}
+			callback(passwordEntry.Text, true)
+		}, w)
+		passwordEntry.OnChanged = func(s string) {
+			strength.SetText(canvas.Text{
+				Alignment: fyne.TextAlignCenter,
+				Color:     colornames.Red,
+				Text:      analyzePasswordStrength(s),
+				TextSize:  15,
+				TextStyle: fyne.TextStyle{},
+			}.Text)
 		}
-		callback(passwordEntry.Text, true)
-	}, w)
+	} else {
+		dialog.ShowForm("Enter Password", "OK", "Cancel", []*widget.FormItem{widget.NewFormItem("Password", passwordEntry)}, func(ok bool) {
+			if !ok {
+				callback("", false)
+				return
+			}
+			callback(passwordEntry.Text, true)
+		}, w)
+	}
+
 }
 
 func showDecryptedContent(w fyne.Window, decryptedText string) {

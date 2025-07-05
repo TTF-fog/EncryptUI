@@ -4,6 +4,7 @@ go 1.24
 
 require (
 	fyne.io/fyne/v2 v2.6.1
+	github.com/sqweek/dialog v0.0.0-20240226140203-065105509627
 	golang.design/x/clipboard v0.7.1
 )
 
@@ -32,7 +33,6 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.5.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rymdport/portal v0.4.1 // indirect
-	github.com/sqweek/dialog v0.0.0-20240226140203-065105509627 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/stretchr/testify v1.10.0 // indirect

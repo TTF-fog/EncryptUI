@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="put settings in sepreate file (settings.go)">
+    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="major reorganisation and cleaup of code. Migrate from the shitty Fyne File UI to a native impl (deepnds on system). &#10;&#10;ai was used in cleanup (modularizing the code, using better function names) no features added">
+      <change afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/pwdStr.go" afterDir="false" />
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/go.mod" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/go.mod" afterDir="false" />
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" afterDir="false" />
+      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/ui_funcs.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/ui_funcs.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +45,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -66,13 +69,18 @@
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;ibrokegit&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/ishaan&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ishaan/home/ishaan/GolandProjects/EncryptUI/journals&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;onboarding.tips.debug.path&quot;: &quot;/home/ishaan/home/ishaan/GolandProjects/EncryptUI/main.go&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/journals" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -112,7 +120,9 @@
     <MESSAGE value="segment files for better readability, improve error patterns for decrypt AES, add modular password box function, basic decryption" />
     <MESSAGE value="Clipboard functionality for decryption, better dialog sizing and look" />
     <MESSAGE value="put settings in sepreate file (settings.go)" />
-    <option name="LAST_COMMIT_MESSAGE" value="put settings in sepreate file (settings.go)" />
+    <MESSAGE value="did a lot of stuff, can't remember it. TODO: clean up the code" />
+    <MESSAGE value="major reorganisation and cleaup of code. Migrate from the shitty Fyne File UI to a native impl (deepnds on system). &#10;&#10;ai was used in cleanup (modularizing the code, using better function names) no features added" />
+    <option name="LAST_COMMIT_MESSAGE" value="major reorganisation and cleaup of code. Migrate from the shitty Fyne File UI to a native impl (deepnds on system). &#10;&#10;ai was used in cleanup (modularizing the code, using better function names) no features added" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
