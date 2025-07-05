@@ -25,6 +25,7 @@ var settings Settings
 func main() {
 	loadSettings()
 	clipboard.Init()
+	settings.Recent = append([]string{"Decrypt Existing File"}, settings.Recent...)
 
 	a := app.New()
 	w := a.NewWindow("Encrypt UI")
@@ -35,7 +36,12 @@ func main() {
 		func() int { return len(settings.Recent) },
 		func() fyne.CanvasObject { return widget.NewLabel("template") },
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(getFileName(settings.Recent[i]))
+			o.(*widget.Label).SetText(func() string {
+				if i != 0 {
+					return getFileName(settings.Recent[i])
+				}
+				return settings.Recent[i]
+			}())
 		},
 	)
 	searchEntry := widget.NewEntry()
@@ -47,7 +53,9 @@ func main() {
 		if selectedFile == "" {
 			return
 		}
-
+		if selectedFile == "Decrypt Existing File" {
+			decryptExistingFile(w, list)
+		}
 		encryptedData, err := os.ReadFile(selectedFile)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
@@ -76,10 +84,13 @@ func main() {
 		}, false)
 	})
 	list.OnSelected = func(id widget.ListItemID) {
-		decryptButton.SetText("Decrypt")
-		selectedFile = settings.Recent[id]
-		getFileName(settings.Recent[id])
+		if id == 0 {
+			decryptButton.SetText("Decrypt Existing File")
+		} else {
+			decryptButton.SetText("Decrypt")
+		}
 
+		selectedFile = settings.Recent[id]
 	}
 
 	encryptButton := widget.NewButton("Encrypt", func() {
@@ -89,9 +100,16 @@ func main() {
 		ef_button := widget.NewButton("Encrypt Existing file", func() {
 			encryptExistingFile(w, list)
 		})
+		st_button := container.NewHBox(widget.NewButton("Create Standalone Encrypted File", func() {
+			showStandaloneOverview(w)
+		}), widget.NewButton("?", func() {
+			dialog.ShowInformation("Standalone Help", "A standalone encrypted file is one that needs no extra software to be opened on a different PC (Same OS) \n"+
+				"Requires Go Installed ", w)
+		}))
 		formItems := []*widget.FormItem{
 			widget.NewFormItem("", nf_button),
 			widget.NewFormItem("", ef_button),
+			widget.NewFormItem("", st_button),
 		}
 		dialog.ShowForm("Encryption Type", "", "", formItems, func(encryptExisting bool) { /*mandatory function, has no effect since confirmation/dismissal does nothing
 			:/ */
@@ -160,7 +178,7 @@ func encryptExistingFile(w fyne.Window, list *widget.List) {
 		if !ok {
 			return
 		}
-		encryptedText, err := EncryptAES([]byte(password), string(data))
+		encryptedText, err := EncryptAES([]byte(password), []byte(string(data)))
 		if err != nil {
 			dialog.ShowError(err, w)
 			return
@@ -192,7 +210,7 @@ func encryptNewFile(w fyne.Window, list *widget.List) {
 			if !ok {
 				return
 			}
-			encryptedText, err := EncryptAES([]byte(password), entry.Text)
+			encryptedText, err := EncryptAES([]byte(password), []byte(entry.Text))
 			if err != nil {
 				dialog.ShowError(err, w)
 				return

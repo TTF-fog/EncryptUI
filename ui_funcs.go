@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+	d "github.com/sqweek/dialog"
 	"golang.design/x/clipboard"
 	"golang.org/x/image/colornames"
 )
@@ -59,4 +61,31 @@ func showDecryptedContent(w fyne.Window, decryptedText string) {
 	d := dialog.NewForm("Decrypted Content", "Done", "", formItems, func(b bool) {}, w)
 	d.Resize(fyne.NewSize(400, 300))
 	d.Show()
+}
+func showStandaloneOverview(w fyne.Window) {
+
+	directory, err := d.Directory().Title("Choose Folder").Browse()
+	if errors.Is(err, d.ErrCancelled) {
+		return
+	}
+
+	entry := widget.NewMultiLineEntry()
+	checkbox_deleteWorkspace := widget.NewCheck("Delete Workspace", func(b bool) {})
+	dialog.ShowForm("Enter Text", "Encrypt", "Cancel", []*widget.FormItem{widget.NewFormItem("Text", entry), widget.NewFormItem("", checkbox_deleteWorkspace)}, func(ok bool) {
+		if !ok {
+			return
+		}
+		createPasswordBox(w, func(password string, ok bool) {
+			if !ok {
+				return
+			}
+
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			makeNewStandalone(entry.Text, false, directory, password, checkbox_deleteWorkspace.Checked)
+		}, true)
+	}, w)
+
 }
