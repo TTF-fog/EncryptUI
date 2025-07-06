@@ -12,7 +12,11 @@ EncryptUI is built with Golang and the Fyne GUI Toolkit, delivering near-native 
 - Single binaries that can be fully configured to store data
 - Open and decrypt files without ANY additional software
 - Zero external dependencies required
+- Note: The way this works is by embedding a 'marker' inside the file. (run strings standalone | grep "START"). The write function then appends the marker + the data. The file later reads itself, searches for that marker and decrypts said data)
 
+https://github.com/user-attachments/assets/b0dc7db7-b3c2-4951-b236-b01a28123015
+
+- 
 ### ️ **User-Friendly Interface**
 - GUI-based encryption and decryption
 - Intuitive and easy to pick up design
