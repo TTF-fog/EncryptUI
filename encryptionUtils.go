@@ -90,11 +90,12 @@ func makeNewStandalone(s string, executeMode bool, password string, remove_works
 	w := compress.NewWriter(&b)
 	w.Write([]byte(s))
 	w.Close()
+	copy("templates/standalone", binaryPath+"/standalone")
 	compressed := b.Bytes()
 
 	encrypted, _ := EncryptAES([]byte(password), compressed)
 
-	binaryData, err := os.ReadFile(binaryPath)
+	binaryData, err := os.ReadFile(binaryPath + "/standalone")
 	if err != nil {
 		fmt.Printf("Error reading binary: %v\n", err)
 		return
@@ -107,9 +108,25 @@ func makeNewStandalone(s string, executeMode bool, password string, remove_works
 	finalBinary.WriteString(marker)
 	finalBinary.Write([]byte(encrypted))
 
-	err = os.WriteFile(binaryPath, finalBinary.Bytes(), 0755)
+	err = os.WriteFile(binaryPath+"/standalone", finalBinary.Bytes(), 0755)
 	if err != nil {
 		fmt.Printf("Error writing final binary: %v\n", err)
 		return
 	}
+}
+func copy(src, dst string) (int64, error) {
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
 }

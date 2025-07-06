@@ -94,7 +94,7 @@ func showStandaloneOverview(w fyne.Window) {
 	}, w)
 	formDialog.Resize(fyne.NewSize(400, 300))
 	fyne.DoAndWait(func() { formDialog.Show() })
-	file, err := d.File().Title("Choose File").Load()
+	file, err := d.Directory().Title("Choose File").Browse()
 	if errors.Is(err, d.ErrCancelled) {
 		return
 	}

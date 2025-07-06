@@ -15,7 +15,9 @@ func loadSettings() {
 }
 
 func setSettings(settings Settings) {
-	settings.Recent = settings.Recent[1:]
+	if len(settings.Recent) > 0 {
+		settings.Recent = settings.Recent[1:]
+	}
 	file, _ := json.MarshalIndent(settings, "", " ")
 	_ = os.WriteFile("config.json", file, 0644)
 }
