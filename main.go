@@ -84,7 +84,7 @@ func main() {
 		}, false)
 	})
 	list.OnSelected = func(id widget.ListItemID) {
-		if id == 0 {
+		if settings.Recent[id] == "Decrypt Existing File" {
 			decryptButton.SetText("Decrypt Existing File")
 		} else {
 			decryptButton.SetText("Decrypt")
@@ -103,8 +103,7 @@ func main() {
 		st_button := container.NewHBox(widget.NewButton("Create Standalone Encrypted File", func() {
 			showStandaloneOverview(w)
 		}), widget.NewButton("?", func() {
-			dialog.ShowInformation("Standalone Help", "A standalone encrypted file is one that needs no extra software to be opened on a different PC (Same OS) \n"+
-				"Requires Go Installed ", w)
+			dialog.ShowInformation("Standalone Help", "A standalone encrypted file is one that needs no extra software to be opened on a different PC (Same OS)", w)
 		}))
 		formItems := []*widget.FormItem{
 			widget.NewFormItem("", nf_button),
@@ -184,11 +183,12 @@ func encryptExistingFile(w fyne.Window, list *widget.List) {
 			return
 		}
 
-		if err := os.WriteFile(file, []byte(encryptedText), 777); err != nil {
+		if err := os.WriteFile(file+"_encrypted", []byte(encryptedText), 777); err != nil {
 			dialog.ShowError(err, w)
 			return
 		}
-		addRecentFile(file, list)
+		fmt.Println(file)
+		addRecentFile(file+"_encrypted", list)
 		dialog.ShowConfirm("Delete Unencrypted files?", "", func(b bool) {
 			if b {
 				err := os.Remove(file)
@@ -243,6 +243,8 @@ func saveEncryptedFile(w fyne.Window, list *widget.List, encryptedText string) {
 func addRecentFile(filePath string, list *widget.List) {
 	settings.Recent = append([]string{filePath}, settings.Recent...)
 	setSettings(settings)
+	settings.Recent[len(settings.Recent)-1] = getFileName(filePath)
+	fmt.Println(settings.Recent)
 	list.Refresh()
 }
 
