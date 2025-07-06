@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="bugfixes">
+    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="more bugfixes">
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/main.go" afterDir="false" />
+      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/settings.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/settings.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +139,8 @@
     <MESSAGE value="complete overhaul of the standalone feature to not require recompilation" />
     <MESSAGE value="updates to standalone creation function to work with new method, add aditional options (skeletons for now)" />
     <MESSAGE value="bugfixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="bugfixes" />
+    <MESSAGE value="more bugfixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="more bugfixes" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

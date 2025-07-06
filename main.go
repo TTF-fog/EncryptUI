@@ -25,7 +25,6 @@ var settings Settings
 func main() {
 	loadSettings()
 	clipboard.Init()
-	settings.Recent = append([]string{"Decrypt Existing File"}, settings.Recent...)
 
 	a := app.New()
 	w := a.NewWindow("Encrypt UI")
@@ -46,10 +45,6 @@ func main() {
 
 	decryptButton := widget.NewButton("Decrypt", func() {
 		if selectedFile == "" {
-			return
-		}
-		if selectedFile == "Decrypt Existing File" {
-			decryptExistingFile(w, list)
 			return
 		}
 		encryptedData, err := os.ReadFile(selectedFile)
@@ -80,12 +75,6 @@ func main() {
 		}, false)
 	})
 	list.OnSelected = func(id widget.ListItemID) {
-		if settings.Recent[id] == "Decrypt Existing File" {
-			decryptButton.SetText("Decrypt Existing File")
-		} else {
-			decryptButton.SetText("Decrypt")
-		}
-
 		selectedFile = settings.Recent[id]
 	}
 
@@ -115,7 +104,10 @@ func main() {
 		setSettings(settings)
 		list.Refresh()
 	})
-	topContainer := container.NewVBox(decryptButton, container.NewBorder(searchEntry, nil, message, nil))
+	decryptExistingFileButton := widget.NewButton("Decrypt Existing File", func() {
+		decryptExistingFile(w, list)
+	})
+	topContainer := container.NewVBox(container.NewHBox(decryptButton, decryptExistingFileButton), container.NewBorder(searchEntry, nil, message, nil))
 	content := container.NewBorder(topContainer, container.NewVBox(clearHistoryButton, encryptButton), nil, nil, list)
 
 	origin := settings.Recent
