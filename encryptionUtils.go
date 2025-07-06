@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	_ "embed"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -85,15 +86,53 @@ func DecryptAES(key []byte, hexCipher string) (string, error) {
 	}
 	return string(ciphertext[:len(ciphertext)-padding]), nil
 }
-func makeNewStandalone(s string, executeMode bool, password string, remove_workspace bool, binaryPath string) {
+
+type Config struct {
+	Destruct    int    `json:"destruct"`
+	ExecuteMode int    `json:"is___executable"`
+	Single_use  int    `json:"single___use"`
+	Data        string `json:"data"`
+}
+
+func makeNewStandalone(data string, executeMode bool, password string, remove_workspace bool, binaryPath string) {
 	var b bytes.Buffer
 	w := compress.NewWriter(&b)
-	w.Write([]byte(s))
+	w.Write([]byte(data))
 	w.Close()
-	copy("templates/standalone", binaryPath+"/standalone")
 	compressed := b.Bytes()
 
-	encrypted, _ := EncryptAES([]byte(password), compressed)
+	encrypted, err := EncryptAES([]byte(password), compressed)
+	if err != nil {
+		fmt.Printf("Error encrypting data: %v\n", err)
+		return
+	}
+
+	executeModeInt := 0
+	if executeMode {
+		executeModeInt = 1
+	}
+	singleUseInt := 0
+	if remove_workspace {
+		singleUseInt = 1
+	}
+
+	config := Config{
+		Destruct:    0,
+		ExecuteMode: executeModeInt,
+		Single_use:  singleUseInt,
+		Data:        encrypted,
+	}
+	configJSON, err := json.Marshal(config)
+	if err != nil {
+		fmt.Printf("Error marshalling config to JSON: %v\n", err)
+		return
+	}
+
+	_, err = copy("templates/standalone", binaryPath+"/standalone")
+	if err != nil {
+		fmt.Printf("Error copying template: %v\n", err)
+		return
+	}
 
 	binaryData, err := os.ReadFile(binaryPath + "/standalone")
 	if err != nil {
@@ -106,7 +145,7 @@ func makeNewStandalone(s string, executeMode bool, password string, remove_works
 	var finalBinary bytes.Buffer
 	finalBinary.Write(binaryData)
 	finalBinary.WriteString(marker)
-	finalBinary.Write([]byte(encrypted))
+	finalBinary.Write(configJSON)
 
 	err = os.WriteFile(binaryPath+"/standalone", finalBinary.Bytes(), 0755)
 	if err != nil {

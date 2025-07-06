@@ -8,6 +8,7 @@ import (
 	"crypto/cipher"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ncruces/zenity"
@@ -18,28 +19,16 @@ import (
 
 const MARKER = "===DATA_START==="
 
+type Config struct {
+	Destruct    int    `json:"destruct"`
+	ExecuteMode int    `json:"is___executable"`
+	Single_use  int    `json:"single___use"`
+	Data        string `json:"data"`
+}
+
 func main() {
-	s := string(extractData())
-	_, password, _ := zenity.Password(zenity.Title("Enter Password"))
-	reader := bytes.NewReader([]byte(func(password string) string {
-		data, err := DecryptAES([]byte(password), s)
-		if err != nil {
-			zenity.Error(err.Error())
-			panic(err)
-			return ""
-		}
-		return data
-	}(password)))
-	gzreader, e1 := gzip.NewReader(reader)
-	if e1 != nil {
-		fmt.Println(e1)
-	}
-	output, e2 := ioutil.ReadAll(gzreader)
-	if e2 != nil {
-		fmt.Println(e2)
-	}
-	result := string(output)
-	zenity.Info(result)
+	config := extractData()
+	decrypt(config)
 }
 func hashPassword(password string) []byte {
 	hash := sha256.Sum256([]byte(password))
@@ -82,7 +71,7 @@ func DecryptAES(key []byte, hexCipher string) (string, error) {
 	return string(ciphertext[:len(ciphertext)-padding]), nil
 }
 
-func extractData() []byte {
+func extractData() Config {
 	path, err := os.Executable()
 	if err != nil {
 		panic(err)
@@ -99,7 +88,42 @@ func extractData() []byte {
 	}
 	embeddedData := data[idx+len(MARKER):]
 	config := strings.TrimSpace(string(embeddedData))
-
+	var config_json Config
+	json.Unmarshal([]byte(config), &config_json)
 	fmt.Printf("Embedded config: %s\n", config)
-	return []byte(config)
+	return config_json
+}
+
+func decrypt(config Config) string {
+	path, _ := os.Executable()
+	_, password, _ := zenity.Password(zenity.Title("Enter Password"))
+	reader := bytes.NewReader([]byte(func(password string) string {
+		data, err := DecryptAES([]byte(password), config.Data)
+		if err != nil {
+			if err.Error() == "incorrect password" {
+				if config.Destruct > 0 {
+					config.Destruct -= 1
+					if config.Destruct == 0 {
+						os.Remove(path)
+						return ""
+					}
+					zenity.Error(string(rune(config.Destruct)) + "Tries Left")
+					decrypt(config)
+				}
+			}
+			zenity.Error(err.Error())
+			panic(err)
+		}
+		return data
+	}(password)))
+	gzreader, e1 := gzip.NewReader(reader)
+	if e1 != nil {
+		fmt.Println(e1)
+	}
+	output, e2 := ioutil.ReadAll(gzreader)
+	if e2 != nil {
+		fmt.Println(e2)
+	}
+	result := string(output)
+	return result
 }
