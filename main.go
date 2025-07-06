@@ -140,7 +140,7 @@ func main() {
 				dialog.NewError(err, w)
 			}
 			if match {
-				results = append(results, item)
+				results = append(results, getFileName(item))
 			}
 		}
 		settings.Recent = results

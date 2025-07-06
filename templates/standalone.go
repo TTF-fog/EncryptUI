@@ -7,20 +7,19 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha256"
-	_ "embed"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/ncruces/zenity"
 	"io/ioutil"
+	"os"
+	"strings"
 )
 
-// ignore this error
-//
-//go:embed encrypt.txt
-var s string
+const MARKER = "===DATA_START==="
 
 func main() {
+	s := string(extractData())
 	_, password, _ := zenity.Password(zenity.Title("Enter Password"))
 	reader := bytes.NewReader([]byte(func(password string) string {
 		data, err := DecryptAES([]byte(password), s)
@@ -46,7 +45,6 @@ func hashPassword(password string) []byte {
 	hash := sha256.Sum256([]byte(password))
 	return hash[:]
 }
-
 func DecryptAES(key []byte, hexCipher string) (string, error) {
 	key = hashPassword(string(key))
 	ciphertext, err := hex.DecodeString(hexCipher)
@@ -82,4 +80,26 @@ func DecryptAES(key []byte, hexCipher string) (string, error) {
 		}
 	}
 	return string(ciphertext[:len(ciphertext)-padding]), nil
+}
+
+func extractData() []byte {
+	path, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	markerBytes := []byte(MARKER)
+	idx := bytes.Index(data, markerBytes)
+	if idx == -1 {
+		fmt.Println("No embedded data found")
+		panic(errors.New("No embedded data found"))
+	}
+	embeddedData := data[idx+len(MARKER):]
+	config := strings.TrimSpace(string(embeddedData))
+
+	fmt.Printf("Embedded config: %s\n", config)
+	return []byte(config)
 }

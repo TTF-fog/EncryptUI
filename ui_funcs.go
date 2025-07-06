@@ -11,6 +11,8 @@ import (
 	"golang.org/x/image/colornames"
 )
 
+var os_select int
+
 func createPasswordBox(w fyne.Window, callback func(password string, ok bool), show bool) {
 	passwordEntry := widget.NewPasswordEntry()
 
@@ -62,9 +64,37 @@ func showDecryptedContent(w fyne.Window, decryptedText string) {
 	d.Resize(fyne.NewSize(400, 300))
 	d.Show()
 }
-func showStandaloneOverview(w fyne.Window) {
 
-	directory, err := d.Directory().Title("Choose Folder").Browse()
+func showStandaloneOverview(w fyne.Window) {
+	type StandaloneOptions struct {
+		os_select     int
+		self_destruct int
+	}
+	var Options StandaloneOptions
+	os_selector := widget.NewSelect([]string{"Linux", "Mac", "Windows"}, func(s string) {
+		switch s {
+		case "Linux":
+			Options.os_select = 1
+		case "Mac":
+			Options.os_select = 2
+		case "Windows":
+			Options.os_select = 2
+		default:
+			dialog.ShowError(errors.New("invalid option: "+s), w)
+		}
+	})
+	self_destruct := widget.NewEntry()
+	self_destruct.SetPlaceHolder("No. Of Failed Attempts (0 To Disable)")
+	formItems := []*widget.FormItem{
+		widget.NewFormItem("Operating System", os_selector),
+		widget.NewFormItem("Self Destruct", self_destruct),
+	}
+
+	formDialog := dialog.NewForm("Standalone Options", "Done", "", formItems, func(b bool) {
+	}, w)
+	formDialog.Resize(fyne.NewSize(400, 300))
+	fyne.DoAndWait(func() { formDialog.Show() })
+	file, err := d.File().Title("Choose File").Load()
 	if errors.Is(err, d.ErrCancelled) {
 		return
 	}
@@ -84,7 +114,7 @@ func showStandaloneOverview(w fyne.Window) {
 				dialog.ShowError(err, w)
 				return
 			}
-			makeNewStandalone(entry.Text, false, directory, password, checkbox_deleteWorkspace.Checked)
+			makeNewStandalone(entry.Text, false, password, checkbox_deleteWorkspace.Checked, file)
 		}, true)
 	}, w)
 
