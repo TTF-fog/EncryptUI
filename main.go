@@ -36,12 +36,7 @@ func main() {
 		func() int { return len(settings.Recent) },
 		func() fyne.CanvasObject { return widget.NewLabel("template") },
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(func() string {
-				if i != 0 {
-					return getFileName(settings.Recent[i])
-				}
-				return settings.Recent[i]
-			}())
+			o.(*widget.Label).SetText(getFileName(settings.Recent[i]))
 		},
 	)
 	searchEntry := widget.NewEntry()
@@ -55,6 +50,7 @@ func main() {
 		}
 		if selectedFile == "Decrypt Existing File" {
 			decryptExistingFile(w, list)
+			return
 		}
 		encryptedData, err := os.ReadFile(selectedFile)
 		if err != nil {
@@ -139,7 +135,7 @@ func main() {
 				dialog.NewError(err, w)
 			}
 			if match {
-				results = append(results, getFileName(item))
+				results = append(results, item)
 			}
 		}
 		settings.Recent = results
@@ -243,20 +239,15 @@ func saveEncryptedFile(w fyne.Window, list *widget.List, encryptedText string) {
 func addRecentFile(filePath string, list *widget.List) {
 	settings.Recent = append([]string{filePath}, settings.Recent...)
 	setSettings(settings)
-	settings.Recent[len(settings.Recent)-1] = getFileName(filePath)
 	fmt.Println(settings.Recent)
 	list.Refresh()
 }
 
 func getFileName(filePath string) string {
-	var name string
-	for i := len(filePath) - 1; i > 0; i-- {
-		if filePath[i] == '/' {
-			name = filePath[i+1:]
-			break
-		}
+	if i := strings.LastIndex(filePath, "/"); i != -1 {
+		return filePath[i+1:]
 	}
-	return name
+	return filePath
 }
 func decryptExistingFile(w fyne.Window, list *widget.List) {
 	file, err := d.File().Load()
