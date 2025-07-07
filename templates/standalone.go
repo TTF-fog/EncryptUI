@@ -15,20 +15,25 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
 
 const MARKER = "===DATA_START==="
 
 type Config struct {
 	Destruct    int    `json:"destruct"`
-	ExecuteMode int    `json:"is___executable"`
-	Single_use  int    `json:"single___use"`
+	ExecuteMode int    `json:"is_executable"`
+	Single_use  int    `json:"single_use"`
 	Data        string `json:"data"`
 }
 
 func main() {
+	//TODO: encrypt JSON to prevent data from being modified
 	config := extractData()
-	decrypt(config)
+	zenity.Info(decrypt(config))
+	go destruct()
+	zenity.Info("This message has self-destructed")
+	return
 }
 func hashPassword(password string) []byte {
 	hash := sha256.Sum256([]byte(password))
@@ -97,33 +102,45 @@ func extractData() Config {
 func decrypt(config Config) string {
 	path, _ := os.Executable()
 	_, password, _ := zenity.Password(zenity.Title("Enter Password"))
-	reader := bytes.NewReader([]byte(func(password string) string {
-		data, err := DecryptAES([]byte(password), config.Data)
-		if err != nil {
-			if err.Error() == "incorrect password" {
-				if config.Destruct > 0 {
-					config.Destruct -= 1
-					if config.Destruct == 0 {
-						os.Remove(path)
-						return ""
-					}
-					zenity.Error(string(rune(config.Destruct)) + "Tries Left")
-					decrypt(config)
+	decryptedData, err := DecryptAES([]byte(password), config.Data)
+
+	if err != nil {
+		if err.Error() == "incorrect password" {
+			//TODO: prevent restarting from clearing counter (maybe write to the end?)
+			if config.Destruct > 0 {
+				config.Destruct -= 1
+				if config.Destruct == 0 {
+					os.Remove(path)
+					return ""
 				}
+				zenity.Error(fmt.Sprintf("%d Tries Left", config.Destruct))
+				return decrypt(config)
 			}
-			zenity.Error(err.Error())
-			panic(err)
+			return ""
 		}
-		return data
-	}(password)))
+		zenity.Error(err.Error())
+		panic(err)
+	}
+
+	reader := bytes.NewReader([]byte(decryptedData))
 	gzreader, e1 := gzip.NewReader(reader)
 	if e1 != nil {
-		fmt.Println(e1)
+		zenity.Error("Failed to create gzip reader: " + e1.Error())
+		panic(e1)
 	}
-	output, e2 := ioutil.ReadAll(gzreader)
+
+	data, e2 := ioutil.ReadAll(gzreader)
 	if e2 != nil {
-		fmt.Println(e2)
+		zenity.Error("Failed to decompress data: " + e2.Error())
+		panic(e2)
 	}
-	result := string(output)
-	return result
+
+	return string(data)
+}
+
+func destruct() {
+	time.Sleep(2 * time.Second)
+	fmt.Println("Destruct executed, goodbye")
+	path, _ := os.Executable()
+	os.Remove(path)
 }

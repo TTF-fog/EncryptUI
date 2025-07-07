@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="remove shitty decrypt existing file logic, create config if notu found">
+    <list default="true" id="de113c3e-691e-4318-8252-e5b2f9aebac6" name="Changes" comment="">
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/encryptionUtils.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/encryptionUtils.go" afterDir="false" />
       <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/templates/standalone.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/templates/standalone.go" afterDir="false" />
-      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/test.txt" beforeDir="false" />
+      <change beforePath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/ui_funcs.go" beforeDir="false" afterPath="$USER_HOME$/home/ishaan/GolandProjects/EncryptUI/ui_funcs.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,7 +142,8 @@
     <MESSAGE value="bugfixes" />
     <MESSAGE value="more bugfixes" />
     <MESSAGE value="remove shitty decrypt existing file logic, create config if notu found" />
-    <option name="LAST_COMMIT_MESSAGE" value="remove shitty decrypt existing file logic, create config if notu found" />
+    <MESSAGE value="json stuff" />
+    <option name="LAST_COMMIT_MESSAGE" value="json stuff" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

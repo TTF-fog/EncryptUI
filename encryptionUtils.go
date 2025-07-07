@@ -89,15 +89,15 @@ func DecryptAES(key []byte, hexCipher string) (string, error) {
 
 type Config struct {
 	Destruct    int    `json:"destruct"`
-	ExecuteMode int    `json:"is___executable"`
-	Single_use  int    `json:"single___use"`
+	ExecuteMode bool   `json:"is___executable"`
+	Single_use  bool   `json:"single___use"`
 	Data        string `json:"data"`
 }
 
-func makeNewStandalone(data string, executeMode bool, password string, remove_workspace bool, binaryPath string) {
+func makeNewStandalone(password string, binaryPath string, config Config) {
 	var b bytes.Buffer
 	w := compress.NewWriter(&b)
-	w.Write([]byte(data))
+	w.Write([]byte(config.Data))
 	w.Close()
 	compressed := b.Bytes()
 
@@ -106,29 +106,14 @@ func makeNewStandalone(data string, executeMode bool, password string, remove_wo
 		fmt.Printf("Error encrypting data: %v\n", err)
 		return
 	}
-
-	executeModeInt := 0
-	if executeMode {
-		executeModeInt = 1
-	}
-	singleUseInt := 0
-	if remove_workspace {
-		singleUseInt = 1
-	}
-
-	config := Config{
-		Destruct:    0,
-		ExecuteMode: executeModeInt,
-		Single_use:  singleUseInt,
-		Data:        encrypted,
-	}
+	config.Data = encrypted
 	configJSON, err := json.Marshal(config)
 	if err != nil {
 		fmt.Printf("Error marshalling config to JSON: %v\n", err)
 		return
 	}
 
-	_, err = copy("templates/standalone", binaryPath+"/standalone")
+	_, err = copy("templates/templates", binaryPath+"/standalone")
 	if err != nil {
 		fmt.Printf("Error copying template: %v\n", err)
 		return

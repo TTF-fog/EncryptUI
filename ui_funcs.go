@@ -9,6 +9,7 @@ import (
 	d "github.com/sqweek/dialog"
 	"golang.design/x/clipboard"
 	"golang.org/x/image/colornames"
+	"strconv"
 )
 
 var os_select int
@@ -69,6 +70,7 @@ func showStandaloneOverview(w fyne.Window) {
 	type StandaloneOptions struct {
 		os_select     int
 		self_destruct int
+		single_use    bool
 	}
 	var Options StandaloneOptions
 	os_selector := widget.NewSelect([]string{"Linux", "Mac", "Windows"}, func(s string) {
@@ -85,16 +87,25 @@ func showStandaloneOverview(w fyne.Window) {
 	})
 	self_destruct := widget.NewEntry()
 	self_destruct.SetPlaceHolder("No. Of Failed Attempts (0 To Disable)")
+	single_use := widget.NewCheck("Single Use", func(b bool) {
+		if b {
+			Options.single_use = b
+		}
+	})
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("Operating System", os_selector),
-		widget.NewFormItem("Self Destruct", self_destruct),
+		widget.NewFormItem("Failed Tries Before Self Destruction", self_destruct),
+		widget.NewFormItem("Single Use", single_use),
+	}
+	self_destruct.OnChanged = func(s string) {
+		Options.self_destruct, _ = strconv.Atoi(s)
 	}
 
 	formDialog := dialog.NewForm("Standalone Options", "Done", "", formItems, func(b bool) {
 	}, w)
 	formDialog.Resize(fyne.NewSize(400, 300))
 	fyne.DoAndWait(func() { formDialog.Show() })
-	file, err := d.Directory().Title("Choose File").Browse()
+	file, err := d.Directory().Title("Choose Folder").Browse()
 	if errors.Is(err, d.ErrCancelled) {
 		return
 	}
@@ -114,7 +125,12 @@ func showStandaloneOverview(w fyne.Window) {
 				dialog.ShowError(err, w)
 				return
 			}
-			makeNewStandalone(entry.Text, false, password, checkbox_deleteWorkspace.Checked, file)
+			makeNewStandalone(password, file, Config{
+				Destruct:    Options.self_destruct,
+				Single_use:  Options.single_use,
+				ExecuteMode: false,
+				Data:        entry.Text,
+			})
 		}, true)
 	}, w)
 
