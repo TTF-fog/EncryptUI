@@ -24,13 +24,15 @@ var settings Settings
 
 func main() {
 	loadSettings()
-	clipboard.Init()
 
 	a := app.New()
 	w := a.NewWindow("Encrypt UI")
 
 	message := container.NewCenter(widget.NewLabel("Recent Files"))
-
+	err := clipboard.Init()
+	if err != nil {
+		dialog.ShowError(err, w)
+	}
 	list := widget.NewList(
 		func() int { return len(settings.Recent) },
 		func() fyne.CanvasObject { return widget.NewLabel("template") },
