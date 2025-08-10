@@ -31,6 +31,7 @@ func main() {
 	message := container.NewCenter(widget.NewLabel("Recent Files"))
 	err := clipboard.Init()
 	if err != nil {
+		dialog.ShowError(errors.New("requires libx11-dev! (sudo apt-get install libx11-dev) (for clipboard functionality)"), w)
 		panic("requires libx11-dev! (sudo apt-get install libx11-dev)")
 	}
 	list := widget.NewList(
