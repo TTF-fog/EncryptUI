@@ -30,8 +30,8 @@ func main() {
 
 	message := container.NewCenter(widget.NewLabel("Recent Files"))
 	err := clipboard.Init()
-	if err != nil {
-		dialog.ShowError(err, w)
+	if err != nil{
+panic("please install libx11-dev")
 	}
 	list := widget.NewList(
 		func() int { return len(settings.Recent) },
